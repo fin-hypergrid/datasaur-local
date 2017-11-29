@@ -1,0 +1,27 @@
+{
+  "name": "datasaur-local",
+  "version": "1.0.0",
+  "description": "Hypergrid in-memory data source",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fin-hypergrid/datasaur-local.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/fin-hypergrid/datasaur-local/issues"
+  },
+  "homepage": "https://github.com/fin-hypergrid/datasaur-local#readme",
+  "dependencies": {
+    "datasaur-base": "^2.0.0",
+    "fin-hypergrid-field-tools": "^1.0.0"
+  },
+  "devDependencies": {
+    "fin-hypergrid-client-module-maker": "^1.1.0",
+    "gulp": "^3.9.1"
+  }
+}
