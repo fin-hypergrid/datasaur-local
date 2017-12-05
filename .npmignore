@@ -1,5 +1,4 @@
-.DS_Store
-/.idea
-/build
+/.*
 /[0-9]*
-gulpfile.js
+/gh-pages.sh
+/gulpfile.js
