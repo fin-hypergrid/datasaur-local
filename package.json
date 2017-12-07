@@ -1,6 +1,6 @@
 {
   "name": "datasaur-local",
-  "version": "1.0.0",
+  "version": "3.0.0",
   "description": "Hypergrid in-memory data source",
   "main": "index.js",
   "scripts": {
@@ -17,7 +17,7 @@
   },
   "homepage": "https://github.com/fin-hypergrid/datasaur-local#readme",
   "dependencies": {
-    "datasaur-base": "^2.0.0",
+    "datasaur-base": "fin-hypergrid/datasaur-base#3.0.0",
     "fin-hypergrid-field-tools": "^1.0.0"
   },
   "devDependencies": {
