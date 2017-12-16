@@ -21,7 +21,7 @@
     "fin-hypergrid-field-tools": "^1.0.0"
   },
   "devDependencies": {
-    "fin-hypergrid-client-module-maker": "fin-hypergrid/client-module-maker#2.0.0",
+    "fin-hypergrid-client-module-maker": "^2.3.0",
     "gulp": "^3.9.1"
   }
 }

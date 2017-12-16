@@ -24,7 +24,7 @@ var getFieldNames = require('fin-hypergrid-field-tools').getFieldNames;
  */
 var DataSourceLocal = DataSourceBase.extend('DataSourceLocal',  {
 
-    initialize: function(data, schema, options) {
+    initialize: function(data, schema) {
         /**
          * @summary The array of column schema objects.
          * @name schema
@@ -103,6 +103,45 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal',  {
      */
     setRow: function(y, dataRow) {
         this.data[y] = dataRow || undefined;
+    },
+
+    /**
+     * Get metadata, a hash of cell properties objects.
+     * Each cell that has properties (and only such cells) have a properties object herein, keyed by column schema name.
+     * @param {number} y
+     * @param {object} [newMetadata] - If row not found sets metadata to `newMetadata` if given.
+     * @returns {undefined|object} Metadata object if row found with metadata; else `newMetadata` if given; else `undefined`.
+     */
+    getRowMetadata: function(y, newMetadata) {
+        var dataRow = this.getRow(y);
+        if (dataRow) {
+            var metadata = dataRow.__META;
+            if (metadata) {
+                return metadata;
+            } else if (newMetadata) {
+                return (dataRow.__META = newMetadata);
+            }
+        }
+    },
+
+    /**
+     * Set or clear metadata.
+     * @param {number} y
+     * @param {object} [metadata] - Hash of grid properties objects.
+     * Each cell that has properties (and only such cells) have a properties object herein, keyed by column schema name.
+     * If omitted, deletes properties object.
+     * @returns {object|undefined} Returns `metadata` if row was found or `undefined` if not found (in which case call is a no-op).
+     */
+    setRowMetadata: function(y, metadata) {
+        var dataRow = this.getRow(y);
+        if (dataRow) {
+            if (metadata) {
+                dataRow.__META = metadata;
+            } else {
+                delete dataRow.__META;
+            }
+        }
+        return dataRow && metadata;
     },
 
     /**
