@@ -4,7 +4,7 @@
 
 var DataSourceBase = require('datasaur-base');
 
-var getFieldNames = require('fin-hypergrid-field-tools').getFieldNames;
+var getSchema = require('fin-hypergrid-field-tools').getSchema;
 
 
 /** @typedef {object} columnSchemaObject
@@ -19,7 +19,9 @@ var getFieldNames = require('fin-hypergrid-field-tools').getFieldNames;
 
 
 /**
- * See {@link DataSourceOrigin#initialize} for constructor parameters.
+ * @param {object} [options]
+ * @param {object[]} [options.data]
+ * @param {object[]} [options.schema]
  * @constructor
  */
 var DataSourceLocal = DataSourceBase.extend('DataSourceLocal',  {
@@ -73,15 +75,7 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal',  {
      * @memberOf DataSourceLocal#
      */
     setSchema: function(schema){
-        if (!schema.length) {
-            var dataRow = this.data.find(function(dataRow) { return dataRow; });
-
-            schema = getFieldNames(dataRow).map(function(name) {
-                return { name: name };
-            });
-        }
-
-        this.schema = schema;
+        this.schema = schema.length ? schema : getSchema(this.data);
     },
 
     /**
@@ -114,14 +108,7 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal',  {
      */
     getRowMetadata: function(y, newMetadata) {
         var dataRow = this.getRow(y);
-        if (dataRow) {
-            var metadata = dataRow.__META;
-            if (metadata) {
-                return metadata;
-            } else if (newMetadata) {
-                return (dataRow.__META = newMetadata);
-            }
-        }
+        return dataRow && (dataRow.__META || (dataRow.__META = newMetadata));
     },
 
     /**
@@ -130,7 +117,7 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal',  {
      * @param {object} [metadata] - Hash of grid properties objects.
      * Each cell that has properties (and only such cells) have a properties object herein, keyed by column schema name.
      * If omitted, deletes properties object.
-     * @returns {object|undefined} Returns `metadata` if row was found or `undefined` if not found (in which case call is a no-op).
+     * @returns {boolean} Row was found.
      */
     setRowMetadata: function(y, metadata) {
         var dataRow = this.getRow(y);
@@ -141,7 +128,7 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal',  {
                 delete dataRow.__META;
             }
         }
-        return dataRow && metadata;
+        return !!dataRow;
     },
 
     /**
