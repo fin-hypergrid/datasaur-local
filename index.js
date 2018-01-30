@@ -26,7 +26,9 @@ var getSchema = require('fin-hypergrid-field-tools').getSchema;
  */
 var DataSourceLocal = DataSourceBase.extend('DataSourceLocal',  {
 
-    initialize: function(data, schema) {
+    META: '__META',
+
+    initialize: function(dataSorce) {
         /**
          * @summary The array of column schema objects.
          * @name schema
@@ -35,7 +37,13 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal',  {
          */
         this.schema = [];
 
-        this.setData(data, schema);
+        /**
+         * @summary The array of uniform data objects.
+         * @name data
+         * @type {object[]}
+         * @memberOf DataSourceLocal#
+         */
+        this.data = [];
     },
 
     /**
@@ -103,12 +111,12 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal',  {
      * Get metadata, a hash of cell properties objects.
      * Each cell that has properties (and only such cells) have a properties object herein, keyed by column schema name.
      * @param {number} y
-     * @param {object} [newMetadata] - If row not found sets metadata to `newMetadata` if given.
+     * @param {object} [newMetadata] - If metadata not found sets metadata to `newMetadata` if given.
      * @returns {undefined|object} Metadata object if row found with metadata; else `newMetadata` if given; else `undefined`.
      */
     getRowMetadata: function(y, newMetadata) {
         var dataRow = this.getRow(y);
-        return dataRow && (dataRow.__META || (dataRow.__META = newMetadata));
+        return dataRow && (dataRow[this.META] || (newMetadata && (dataRow[this.META] = newMetadata)));
     },
 
     /**
@@ -123,9 +131,9 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal',  {
         var dataRow = this.getRow(y);
         if (dataRow) {
             if (metadata) {
-                dataRow.__META = metadata;
+                dataRow[this.META] = metadata;
             } else {
-                delete dataRow.__META;
+                delete dataRow[this.META];
             }
         }
         return !!dataRow;

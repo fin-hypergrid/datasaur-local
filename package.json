@@ -17,8 +17,8 @@
   },
   "homepage": "https://github.com/fin-hypergrid/datasaur-local#readme",
   "dependencies": {
-    "datasaur-base": "fin-hypergrid/datasaur-base#3.0.0",
-    "fin-hypergrid-field-tools": "^1.0.0"
+    "datasaur-base": "../datasaur-base",
+    "fin-hypergrid-field-tools": "../field-tools"
   },
   "devDependencies": {
     "fin-hypergrid-client-module-maker": "^2.3.0",
