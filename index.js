@@ -28,7 +28,7 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal',  {
 
     META: '__META',
 
-    initialize: function(dataSorce) {
+    initialize: function(nextDataSource, options) {
         /**
          * @summary The array of column schema objects.
          * @name schema
@@ -83,7 +83,11 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal',  {
      * @memberOf DataSourceLocal#
      */
     setSchema: function(schema){
-        this.schema = schema.length ? schema : getSchema(this.data);
+        if (!schema.length) {
+            schema = getSchema(this.data);
+        }
+
+        this.initSchema(schema);
     },
 
     /**
@@ -115,7 +119,7 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal',  {
      * @returns {undefined|object} Metadata object if row found with metadata; else `newMetadata` if given; else `undefined`.
      */
     getRowMetadata: function(y, newMetadata) {
-        var dataRow = this.getRow(y);
+        var dataRow = this.data[y];
         return dataRow && (dataRow[this.META] || (newMetadata && (dataRow[this.META] = newMetadata)));
     },
 
@@ -128,7 +132,7 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal',  {
      * @returns {boolean} Row was found.
      */
     setRowMetadata: function(y, metadata) {
-        var dataRow = this.getRow(y);
+        var dataRow = this.data[y];
         if (dataRow) {
             if (metadata) {
                 dataRow[this.META] = metadata;
@@ -175,7 +179,7 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal',  {
      * @memberOf DataSourceLocal#
      */
     getValue: function(x, y) {
-        var row = this.getRow(y);
+        var row = this.data[y];
         if (!row) {
             return null;
         }
@@ -189,7 +193,7 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal',  {
      * @memberOf DataSourceLocal#
      */
     setValue: function(x, y, value) {
-        this.getRow(y)[getColumnName.call(this, x)] = value;
+        this.data[y][getColumnName.call(this, x)] = value;
     },
 
     /**
