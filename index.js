@@ -26,8 +26,6 @@ var getSchema = require('fin-hypergrid-field-tools').getSchema;
  */
 var DataSourceLocal = DataSourceBase.extend('DataSourceLocal',  {
 
-    META: '__META',
-
     initialize: function(nextDataSource, options) {
         /**
          * @summary The array of column schema objects.
@@ -47,7 +45,7 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal',  {
     },
 
     /**
-     * Establish a new data and schema.
+     * Establish new data and schema.
      * If no data provided, data will be set to 0 rows.
      * If no schema provided AND no previously set schema, new schema will be derived from data.
      * @param {object[]} [data=[]] - Array of uniform objects containing the grid data.
@@ -71,23 +69,23 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal',  {
     },
 
     /**
-     * @returns {columnSchemaObject[]}
+     * @see {@link https://fin-hypergrid.github.io/3.0.0/doc/dataModelAPI#getSchema}
      * @memberOf DataSourceLocal#
      */
     getSchema:  function(){
         return this.schema;
     },
     /**
-     * Caveat: Do not call on a data update when you expect to reuse the existing schema.
-     * @param schema
+     * @see {@link https://fin-hypergrid.github.io/3.0.0/doc/dataModelAPI#setSchema}
      * @memberOf DataSourceLocal#
      */
-    setSchema: function(schema){
-        if (!schema.length) {
-            schema = getSchema(this.data);
+    setSchema: function(newSchema){
+        if (!newSchema.length) {
+            newSchema = getSchema(this.data);
         }
 
-        this.initSchema(schema);
+        this.schema = newSchema;
+        this.dispatchEvent('data-schema-changed');
     },
 
     /**
@@ -112,32 +110,25 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal',  {
     },
 
     /**
-     * Get metadata, a hash of cell properties objects.
-     * Each cell that has properties (and only such cells) have a properties object herein, keyed by column schema name.
-     * @param {number} y
-     * @param {object} [newMetadata] - If metadata not found sets metadata to `newMetadata` if given.
-     * @returns {undefined|object} Metadata object if row found with metadata; else `newMetadata` if given; else `undefined`.
+     * @see {@link https://fin-hypergrid.github.io/3.0.0/doc/dataModelAPI#getRowMetadata}
+     * @memberOf DataSourceLocal#
      */
-    getRowMetadata: function(y, newMetadata) {
+    getRowMetadata: function(y, prototype) {
         var dataRow = this.data[y];
-        return dataRow && (dataRow[this.META] || (newMetadata && (dataRow[this.META] = newMetadata)));
+        return dataRow && (dataRow.__META || (prototype !== undefined && (dataRow.__META = Object.create(prototype))));
     },
 
     /**
-     * Set or clear metadata.
-     * @param {number} y
-     * @param {object} [metadata] - Hash of grid properties objects.
-     * Each cell that has properties (and only such cells) have a properties object herein, keyed by column schema name.
-     * If omitted, deletes properties object.
-     * @returns {boolean} Row was found.
+     * @see {@link https://fin-hypergrid.github.io/3.0.0/doc/dataModelAPI#setRowMetadata}
+     * @memberOf DataSourceLocal#
      */
     setRowMetadata: function(y, metadata) {
         var dataRow = this.data[y];
         if (dataRow) {
             if (metadata) {
-                dataRow[this.META] = metadata;
+                dataRow.__META = metadata;
             } else {
-                delete dataRow[this.META];
+                delete dataRow.__META;
             }
         }
         return !!dataRow;
@@ -157,6 +148,7 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal',  {
         } else {
             this.data.splice(y, 0, dataRow);
         }
+        this.dispatchEvent('data-shape-changed');
     },
 
     /**
@@ -168,14 +160,15 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal',  {
      * @memberOf DataSourceLocal#
      */
     delRow: function(y, rowCount) {
-        if (rowCount === undefined) { rowCount = 1; }
-        return this.data.splice(y, rowCount);
+        var rows = this.data.splice(y, rowCount === undefined ? 1 : rowCount);
+        if (rows.length) {
+            this.dispatchEvent('data-shape-changed');
+        }
+        return rows;
     },
 
     /**
-     * @param {number} x
-     * @param {number} y
-     * @returns {*}
+     * @see {@link https://fin-hypergrid.github.io/3.0.0/doc/dataModelAPI#getValue}
      * @memberOf DataSourceLocal#
      */
     getValue: function(x, y) {
@@ -185,11 +178,8 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal',  {
         }
         return row[getColumnName.call(this, x)];
     },
-
     /**
-     * @param {number} x
-     * @param {number} y
-     * @param value
+     * @see {@link https://fin-hypergrid.github.io/3.0.0/doc/dataModelAPI#setValue}
      * @memberOf DataSourceLocal#
      */
     setValue: function(x, y, value) {
@@ -197,7 +187,7 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal',  {
     },
 
     /**
-     * @returns {number}
+     * @see {@link https://fin-hypergrid.github.io/3.0.0/doc/dataModelAPI#getRowCount}
      * @memberOf DataSourceLocal#
      */
     getRowCount: function() {
@@ -205,7 +195,7 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal',  {
     },
 
     /**
-     * @returns {number}
+     * @see {@link https://fin-hypergrid.github.io/3.0.0/doc/dataModelAPI#getColumnCount}
      * @memberOf DataSourceLocal#
      */
     getColumnCount: function() {
@@ -216,6 +206,5 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal',  {
 function getColumnName(x) {
     return (typeof x)[0] === 'n' ? this.schema[x].name : x;
 }
-
 
 module.exports = DataSourceLocal;
