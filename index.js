@@ -4,9 +4,6 @@
 
 var DataSourceBase = require('datasaur-base');
 
-var getSchema = require('fin-hypergrid-field-tools').getSchema;
-
-
 /** @typedef {object} columnSchemaObject
  * @property {string} name - The required column name.
  * @property {string} [header] - An override for derived header
@@ -81,7 +78,10 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal',  {
      */
     setSchema: function(newSchema){
         if (!newSchema.length) {
-            newSchema = getSchema(this.data);
+            var dataRow = this.data.find(function(dataRow) { return dataRow; });
+            if (dataRow) {
+                newSchema = Object.keys(dataRow);
+            }
         }
 
         this.schema = newSchema;
