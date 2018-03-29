@@ -172,11 +172,37 @@ var DatasaurLocal = DatasaurBase.extend('DatasaurLocal',  {
      * @memberOf DatasaurLocal#
      */
     getValue: function(x, y) {
-        var row = this.data[y];
-        if (!row) {
-            return null;
+        if (y===116 || y===114 && x===2) {
+            var row = this.data[y];
+            if (!row) {
+                return null;
+            }
+            var key = getColumnName.call(this, x);
+            var value = [
+                row[key],
+                this.data[y + 1][key],
+                this.data[y + 2][key]
+            ];
+            value.subrows = true;
+            ((row.__META || (row.__META = {})).__ROW || (row.__META.__ROW = {})).height = 46;
+
+            if (!this.needsShapeChange) {
+                // this needs to be "scheduled" because it's happening in middle of a grid render :(
+                this.needsShapeChange = true;
+                setTimeout(scheduleShapeChange.bind(this));
+            }
+
+            return value;
+        } else {
+            if (y>114) y +=2;
+            if (y>116) y +=2;
+
+            var row = this.data[y];
+            if (!row) {
+                return null;
+            }
+            return row[getColumnName.call(this, x)];
         }
-        return row[getColumnName.call(this, x)];
     },
     /**
      * @see {@link https://fin-hypergrid.github.io/3.0.0/doc/dataModelAPI#setValue}
@@ -205,6 +231,11 @@ var DatasaurLocal = DatasaurBase.extend('DatasaurLocal',  {
 
 function getColumnName(x) {
     return (typeof x)[0] === 'n' ? this.schema[x].name : x;
+}
+
+function scheduleShapeChange() {
+    this.needsShapeChange = false;
+    this.dispatchEvent('data-shape-changed');
 }
 
 module.exports = DatasaurLocal;
