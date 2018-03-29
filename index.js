@@ -2,7 +2,7 @@
 
 'use strict';
 
-var DataSourceBase = require('datasaur-base');
+var DatasaurBase = require('datasaur-base');
 
 /** @typedef {object} columnSchemaObject
  * @property {string} name - The required column name.
@@ -21,14 +21,14 @@ var DataSourceBase = require('datasaur-base');
  * @param {object[]} [options.schema]
  * @constructor
  */
-var DataSourceLocal = DataSourceBase.extend('DataSourceLocal',  {
+var DatasaurLocal = DatasaurBase.extend('DatasaurLocal',  {
 
-    initialize: function(nextDataSource, options) {
+    initialize: function(datasaur, options) {
         /**
          * @summary The array of column schema objects.
          * @name schema
          * @type {columnSchemaObject[]}
-         * @memberOf DataSourceLocal#
+         * @memberOf DatasaurLocal#
          */
         this.schema = [];
 
@@ -36,7 +36,7 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal',  {
          * @summary The array of uniform data objects.
          * @name data
          * @type {object[]}
-         * @memberOf DataSourceLocal#
+         * @memberOf DatasaurLocal#
          */
         this.data = [];
     },
@@ -47,14 +47,14 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal',  {
      * If no schema provided AND no previously set schema, new schema will be derived from data.
      * @param {object[]} [data=[]] - Array of uniform objects containing the grid data.
      * @param {columnSchemaObject[]} [schema=[]]
-     * @memberOf DataSourceLocal#
+     * @memberOf DatasaurLocal#
      */
     setData: function(data, schema) {
         /**
          * @summary The array of uniform data objects.
          * @name data
          * @type {object[]}
-         * @memberOf DataSourceLocal#
+         * @memberOf DatasaurLocal#
          */
         this.data = data || [];
 
@@ -67,14 +67,14 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal',  {
 
     /**
      * @see {@link https://fin-hypergrid.github.io/3.0.0/doc/dataModelAPI#getSchema}
-     * @memberOf DataSourceLocal#
+     * @memberOf DatasaurLocal#
      */
     getSchema:  function(){
         return this.schema;
     },
     /**
      * @see {@link https://fin-hypergrid.github.io/3.0.0/doc/dataModelAPI#setSchema}
-     * @memberOf DataSourceLocal#
+     * @memberOf DatasaurLocal#
      */
     setSchema: function(newSchema){
         if (!newSchema.length) {
@@ -85,13 +85,13 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal',  {
         }
 
         this.schema = newSchema;
-        this.dispatchEvent('data-schema-changed');
+        this.dispatchEvent('fin-hypergrid-schema-changed');
     },
 
     /**
      * @param y
      * @returns {dataRowObject}
-     * @memberOf DataSourceLocal#
+     * @memberOf DatasaurLocal#
      */
     getRow: function(y) {
         return this.data[y];
@@ -103,7 +103,7 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal',  {
      * _Note parameter order is the reverse of `addRow`._
      * @param {number} y
      * @param {object} [dataRow] - if omitted or otherwise falsy, row renders as blank
-     * @memberOf DataSourceLocal#
+     * @memberOf DatasaurLocal#
      */
     setRow: function(y, dataRow) {
         this.data[y] = dataRow || undefined;
@@ -111,7 +111,7 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal',  {
 
     /**
      * @see {@link https://fin-hypergrid.github.io/3.0.0/doc/dataModelAPI#getRowMetadata}
-     * @memberOf DataSourceLocal#
+     * @memberOf DatasaurLocal#
      */
     getRowMetadata: function(y, prototype) {
         var dataRow = this.data[y];
@@ -120,7 +120,7 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal',  {
 
     /**
      * @see {@link https://fin-hypergrid.github.io/3.0.0/doc/dataModelAPI#setRowMetadata}
-     * @memberOf DataSourceLocal#
+     * @memberOf DatasaurLocal#
      */
     setRowMetadata: function(y, metadata) {
         var dataRow = this.data[y];
@@ -140,7 +140,7 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal',  {
      * _Note parameter order is the reverse of `setRow`._
      * @param {object} dataRow
      * @param {number} [y=Infinity] - The index of the new row. If `y` >= row count, row is appended to end; otherwise row is inserted at `y` and row indexes of all remaining rows are incremented.
-     * @memberOf DataSourceLocal#
+     * @memberOf DatasaurLocal#
      */
     addRow: function(dataRow, y) {
         if (y === undefined || y >= this.getRowCount()) {
@@ -148,7 +148,7 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal',  {
         } else {
             this.data.splice(y, 0, dataRow);
         }
-        this.dispatchEvent('data-shape-changed');
+        this.dispatchEvent('fin-hypergrid-data-shape-changed');
     },
 
     /**
@@ -157,19 +157,19 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal',  {
      * @param {number} y
      * @param {number} [rowCount=1]
      * @returns {dataRowObject[]}
-     * @memberOf DataSourceLocal#
+     * @memberOf DatasaurLocal#
      */
     delRow: function(y, rowCount) {
         var rows = this.data.splice(y, rowCount === undefined ? 1 : rowCount);
         if (rows.length) {
-            this.dispatchEvent('data-shape-changed');
+            this.dispatchEvent('fin-hypergrid-data-shape-changed');
         }
         return rows;
     },
 
     /**
      * @see {@link https://fin-hypergrid.github.io/3.0.0/doc/dataModelAPI#getValue}
-     * @memberOf DataSourceLocal#
+     * @memberOf DatasaurLocal#
      */
     getValue: function(x, y) {
         var row = this.data[y];
@@ -180,7 +180,7 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal',  {
     },
     /**
      * @see {@link https://fin-hypergrid.github.io/3.0.0/doc/dataModelAPI#setValue}
-     * @memberOf DataSourceLocal#
+     * @memberOf DatasaurLocal#
      */
     setValue: function(x, y, value) {
         this.data[y][getColumnName.call(this, x)] = value;
@@ -188,7 +188,7 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal',  {
 
     /**
      * @see {@link https://fin-hypergrid.github.io/3.0.0/doc/dataModelAPI#getRowCount}
-     * @memberOf DataSourceLocal#
+     * @memberOf DatasaurLocal#
      */
     getRowCount: function() {
         return this.data.length;
@@ -196,7 +196,7 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal',  {
 
     /**
      * @see {@link https://fin-hypergrid.github.io/3.0.0/doc/dataModelAPI#getColumnCount}
-     * @memberOf DataSourceLocal#
+     * @memberOf DatasaurLocal#
      */
     getColumnCount: function() {
         return this.schema.length;
@@ -207,4 +207,4 @@ function getColumnName(x) {
     return (typeof x)[0] === 'n' ? this.schema[x].name : x;
 }
 
-module.exports = DataSourceLocal;
+module.exports = DatasaurLocal;
