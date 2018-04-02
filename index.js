@@ -142,7 +142,11 @@ var DatasaurLocal = DatasaurBase.extend('DatasaurLocal',  {
      * @param {number} [y=Infinity] - The index of the new row. If `y` >= row count, row is appended to end; otherwise row is inserted at `y` and row indexes of all remaining rows are incremented.
      * @memberOf DatasaurLocal#
      */
-    addRow: function(dataRow, y) {
+    addRow: function(y, dataRow) {
+        if (arguments.length === 1) {
+            dataRow = arguments[0];
+            y = undefined;
+        }
         if (y === undefined || y >= this.getRowCount()) {
             this.data.push(dataRow);
         } else {
