@@ -180,14 +180,15 @@ var DatasaurLocal = DatasaurBase.extend('DatasaurLocal',  {
         if (!row) {
             return null;
         }
-        return row[getColumnName.call(this, x)];
+        return row[this.schema[x].name];
     },
+
     /**
      * @see {@link https://fin-hypergrid.github.io/3.0.0/doc/dataModelAPI#setValue}
      * @memberOf DatasaurLocal#
      */
     setValue: function(x, y, value) {
-        this.data[y][getColumnName.call(this, x)] = value;
+        this.data[y][this.schema[x].name] = value;
     },
 
     /**
@@ -206,9 +207,5 @@ var DatasaurLocal = DatasaurBase.extend('DatasaurLocal',  {
         return this.schema.length;
     }
 });
-
-function getColumnName(x) {
-    return (typeof x)[0] === 'n' ? this.schema[x].name : x;
-}
 
 module.exports = DatasaurLocal;
