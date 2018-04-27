@@ -63,6 +63,8 @@ var DatasaurLocal = DatasaurBase.extend('DatasaurLocal',  {
         } else if (this.data.length && !this.schema.length) {
             this.setSchema([]);
         }
+
+        this.dispatchEvent('fin-hypergrid-data-loaded');
     },
 
     /**
