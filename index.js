@@ -24,6 +24,10 @@ var DatasaurBase = require('datasaur-base');
 var DatasaurLocal = DatasaurBase.extend('DatasaurLocal',  {
 
     initialize: function(datasaur, options) {
+        this.reset();
+    },
+
+    reset: function() {
         /**
          * @summary The array of column schema objects.
          * @name schema
@@ -80,7 +84,7 @@ var DatasaurLocal = DatasaurBase.extend('DatasaurLocal',  {
      */
     setSchema: function(newSchema){
         if (!newSchema.length) {
-            var dataRow = this.data.find(function(dataRow) { return dataRow; });
+            var dataRow = this.getFirstRow();
             if (dataRow) {
                 newSchema = Object.keys(dataRow);
             }
@@ -88,6 +92,19 @@ var DatasaurLocal = DatasaurBase.extend('DatasaurLocal',  {
 
         this.schema = newSchema;
         this.dispatchEvent('fin-hypergrid-schema-loaded');
+    },
+
+    /**
+     * @summary Find first extant AND defined element.
+     * @desc Uses for...in to find extant rows plus a truthiness test to return only a defined row.
+     * @returns {dataRow|undefined} Returns undefined if there are no such rows.
+     */
+    getFirstRow: function() {
+        for (var i in this.data) {
+            if (this.data[i]) {
+                return this.data[i];
+            }
+        }
     },
 
     /**
